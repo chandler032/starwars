@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  starwars-service:
+    build:
+      context: ./services/starwars
+      dockerfile: Dockerfile
+    networks:
+      - starwars-network
+    ports:
+      - "8080:8080"
+    volumes: 
+      - ./services/service-config.yml:/app/server-config.yml
+
+  star-wars-wiki-ui:
+    build:
+      context: ./ui/star-wars-wiki
+      dockerfile: Dockerfile
+    networks:
+      - starwars-network
+    ports:
+      - "80:80"
+
+networks:
+  starwars-network:
+    driver: bridge

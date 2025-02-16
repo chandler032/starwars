@@ -1,0 +1,97 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > BaseResponse</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.example.assignment.starwars.dtos.responses</a>
+</div>
+
+<h1>Coverage Summary for Class: BaseResponse (org.example.assignment.starwars.dtos.responses)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">BaseResponse</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package org.example.assignment.starwars.dtos.responses;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonInclude;
+&nbsp;import lombok.Data;
+&nbsp;
+&nbsp;import java.time.LocalDateTime;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;@Data
+&nbsp;@JsonInclude(JsonInclude.Include.NON_NULL)
+&nbsp;public class BaseResponse {
+&nbsp;    private List&lt;String&gt; species;
+&nbsp;    private List&lt;String&gt; starships;
+&nbsp;    private List&lt;String&gt; vehicles;
+&nbsp;    private List&lt;String&gt; planets;
+&nbsp;    private List&lt;String&gt; films;
+&nbsp;    private List&lt;String&gt; people;
+&nbsp;
+&nbsp;    private String url;
+&nbsp;    private LocalDateTime created;
+&nbsp;    private LocalDateTime edited;
+&nbsp;
+&nbsp;    private List&lt;SpeciesResponse&gt; speciesList;
+&nbsp;    private List&lt;StarShipResponse&gt; starshipList;
+&nbsp;    private List&lt;VehicleResponse&gt; vehicleList;
+&nbsp;    private List&lt;PlanetResponse&gt; planetList;
+&nbsp;    private List&lt;FilmResponse&gt; filmList;
+&nbsp;    private List&lt;PeopleResponse&gt; peopleList;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-02-02 19:08</div>
+</div>
+</body>
+</html>

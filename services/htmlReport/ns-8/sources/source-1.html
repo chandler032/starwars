@@ -1,0 +1,245 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > AsyncService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.example.assignment.starwars.services.impls</a>
+</div>
+
+<h1>Coverage Summary for Class: AsyncService (org.example.assignment.starwars.services.impls)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">AsyncService</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    36.4%
+  </span>
+  <span class="absValue">
+    (4/11)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    37.5%
+  </span>
+  <span class="absValue">
+    (3/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    21.3%
+  </span>
+  <span class="absValue">
+    (13/61)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package org.example.assignment.starwars.services.impls;
+&nbsp;
+&nbsp;import lombok.extern.slf4j.Slf4j;
+&nbsp;import org.example.assignment.starwars.dtos.responses.*;
+&nbsp;import org.example.assignment.starwars.services.external.CacheService;
+&nbsp;import org.example.assignment.starwars.services.strategy.components.FilmService;
+&nbsp;import org.example.assignment.starwars.services.strategy.components.PeopleService;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.beans.factory.annotation.Qualifier;
+&nbsp;import org.springframework.scheduling.annotation.Async;
+&nbsp;import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;import org.springframework.util.CollectionUtils;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Optional;
+&nbsp;import java.util.concurrent.CompletableFuture;
+&nbsp;
+&nbsp;@Service
+<b class="fc">&nbsp;@Slf4j</b>
+<b class="fc">&nbsp;public class AsyncService {</b>
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private FilmService filmService;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private PeopleService peopleService;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    @Qualifier(&quot;asyncTheadPool&quot;)
+&nbsp;    ThreadPoolTaskExecutor asyncTheadPool;
+&nbsp;
+&nbsp;    @Async(&quot;asyncTheadPool&quot;)
+&nbsp;    public CompletableFuture&lt;Optional&lt;FilmResponse&gt;&gt; getFilmData(String filmUrl) {
+<b class="nc">&nbsp;        log.info(&quot;Fetching film data from: {}. Thread: {}&quot;, filmUrl, Thread.currentThread().getName());</b>
+&nbsp;        try {
+<b class="nc">&nbsp;            String[] urlParts = filmUrl.split(&quot;/&quot;);</b>
+<b class="nc">&nbsp;            String filmId = urlParts[urlParts.length - 1];</b>
+<b class="nc">&nbsp;            Optional&lt;FilmResponse&gt; filmResponseOptional = Optional.ofNullable(filmService.getFilmByID(&quot;film&quot;, filmId));</b>
+<b class="nc">&nbsp;            return CompletableFuture.completedFuture(filmResponseOptional);</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            log.error(&quot;Error occurred while fetching film data&quot;, e);</b>
+&nbsp;            throw e;
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @Async(&quot;asyncTheadPool&quot;)
+&nbsp;    public CompletableFuture&lt;Void&gt; addToCache(String key, List&lt;? extends BaseResponse&gt; responseList, CacheService cacheService) {
+&nbsp;        try {
+<b class="fc">&nbsp;            if (!CollectionUtils.isEmpty(responseList)) {</b>
+<b class="pc">&nbsp;                switch (key) {</b>
+&nbsp;                    case &quot;film&quot;:
+<b class="fc">&nbsp;                        List&lt;FilmResponse&gt; filmResponseList = responseList</b>
+<b class="fc">&nbsp;                                .stream()</b>
+<b class="fc">&nbsp;                                .map(FilmResponse.class::cast)</b>
+<b class="fc">&nbsp;                                .toList();</b>
+<b class="fc">&nbsp;                        filmResponseList.forEach(</b>
+<b class="fc">&nbsp;                                filmResponse -&gt; cacheService</b>
+<b class="fc">&nbsp;                                        .saveCache(&quot;film_&quot; + filmResponse.getTitle().toLowerCase(), filmResponse));</b>
+&nbsp;                        break;
+&nbsp;                    case &quot;people&quot;:
+<b class="nc">&nbsp;                        List&lt;PeopleResponse&gt; peopleResponseList = responseList</b>
+<b class="nc">&nbsp;                                .stream()</b>
+<b class="nc">&nbsp;                                .map(PeopleResponse.class::cast)</b>
+<b class="nc">&nbsp;                                .toList();</b>
+<b class="nc">&nbsp;                        peopleResponseList.forEach(</b>
+<b class="nc">&nbsp;                                peopleResponse -&gt; cacheService</b>
+<b class="nc">&nbsp;                                        .saveCache(&quot;people_&quot; + peopleResponse.getName().toLowerCase(), peopleResponse));</b>
+&nbsp;                        break;
+&nbsp;                    case &quot;starship&quot;:
+<b class="nc">&nbsp;                        List&lt;StarShipResponse&gt; starShipResponseList = responseList</b>
+<b class="nc">&nbsp;                                .stream()</b>
+<b class="nc">&nbsp;                                .map(StarShipResponse.class::cast)</b>
+<b class="nc">&nbsp;                                .toList();</b>
+<b class="nc">&nbsp;                        starShipResponseList.forEach(</b>
+<b class="nc">&nbsp;                                starShipResponse -&gt; cacheService</b>
+<b class="nc">&nbsp;                                        .saveCache(&quot;starship_&quot; + starShipResponse.getName().toLowerCase(), starShipResponse));</b>
+&nbsp;                        break;
+&nbsp;                    case &quot;vehicle&quot;:
+<b class="nc">&nbsp;                        List&lt;VehicleResponse&gt; vehicleResponseList = responseList</b>
+<b class="nc">&nbsp;                                .stream()</b>
+<b class="nc">&nbsp;                                .map(VehicleResponse.class::cast)</b>
+<b class="nc">&nbsp;                                .toList();</b>
+<b class="nc">&nbsp;                        vehicleResponseList.forEach(</b>
+<b class="nc">&nbsp;                                vehicleResponse -&gt; cacheService</b>
+<b class="nc">&nbsp;                                        .saveCache(&quot;vehicle_&quot; + vehicleResponse.getName().toLowerCase(), vehicleResponse));</b>
+&nbsp;                        break;
+&nbsp;                    case &quot;species&quot;:
+<b class="nc">&nbsp;                        List&lt;SpeciesResponse&gt; speciesResponseList = responseList</b>
+<b class="nc">&nbsp;                                .stream()</b>
+<b class="nc">&nbsp;                                .map(SpeciesResponse.class::cast)</b>
+<b class="nc">&nbsp;                                .toList();</b>
+<b class="nc">&nbsp;                        speciesResponseList.forEach(</b>
+<b class="nc">&nbsp;                                speciesResponse -&gt; cacheService</b>
+<b class="nc">&nbsp;                                        .saveCache(&quot;species_&quot; + speciesResponse.getName().toLowerCase(), speciesResponse));</b>
+&nbsp;                        break;
+&nbsp;                    case &quot;planet&quot;:
+<b class="nc">&nbsp;                        List&lt;PlanetResponse&gt; planetResponseList = responseList</b>
+<b class="nc">&nbsp;                                .stream()</b>
+<b class="nc">&nbsp;                                .map(PlanetResponse.class::cast)</b>
+<b class="nc">&nbsp;                                .toList();</b>
+<b class="nc">&nbsp;                        planetResponseList.forEach(</b>
+<b class="nc">&nbsp;                                planetResponse -&gt; cacheService</b>
+<b class="nc">&nbsp;                                        .saveCache(&quot;planet_&quot; + planetResponse.getName().toLowerCase(), planetResponse));</b>
+&nbsp;                        break;
+&nbsp;                    default:
+<b class="fc">&nbsp;                        log.error(&quot;Invalid key: {}&quot;, key);</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        } catch (RuntimeException e) {
+<b class="nc">&nbsp;            log.error(&quot;Error occurred while adding to cache&quot;, e);</b>
+&nbsp;            throw e;
+&nbsp;        }
+<b class="fc">&nbsp;        return CompletableFuture.completedFuture(null);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Async(&quot;asyncTheadPool&quot;)
+&nbsp;    public CompletableFuture&lt;Optional&lt;PeopleResponse&gt;&gt; getPeopleData(String peopleUrl) {
+<b class="nc">&nbsp;        log.info(&quot;Fetching people data from: {}. Thread: {}&quot;, peopleUrl, Thread.currentThread().getName());</b>
+&nbsp;        try {
+<b class="nc">&nbsp;            String[] urlParts = peopleUrl.split(&quot;/&quot;);</b>
+<b class="nc">&nbsp;            String peopleId = urlParts[urlParts.length - 1];</b>
+<b class="nc">&nbsp;            Optional&lt;PeopleResponse&gt; peopleResponseOptional = Optional.ofNullable(peopleService.getPeopleByID(&quot;people&quot;, peopleId));</b>
+<b class="nc">&nbsp;            return CompletableFuture.completedFuture(peopleResponseOptional);</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            log.error(&quot;Error occurred while fetching people data&quot;, e);</b>
+&nbsp;            throw e;
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-02-02 19:08</div>
+</div>
+</body>
+</html>

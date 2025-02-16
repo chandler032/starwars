@@ -1,0 +1,74 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_REGISTRY = 'localhost:6000'
+        SPRING_BOOT_APP = 'starwars-service'
+        SERVICE_LOCATION = '/Users/ramkbharathi/publicis-sapient/services'
+        CONFIG_LOCATION = '/service-config.yml'
+        IMAGE_CONFIG_LOCATION = '/app/server-config.yml'
+        PATH = "/opt/homebrew/bin:/opt/homebrew/sbin:/Library/Frameworks/Python.framework/Versions/3.11/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/usr/local/share/dotnet:~/.dotnet/tools:/usr/local/bin/docker:$PATH"
+    }
+
+    stages {
+        stage('Build Dependencies') {
+            parallel {
+                stage('Build map-cache') {
+                    steps {
+                        dir("${SERVICE_LOCATION}/map-cache") {
+                            sh '/opt/homebrew/bin/mvn clean install'
+                        }
+                    }
+                }
+                stage('Build rest-client') {
+                    steps {
+                        dir("${SERVICE_LOCATION}/rest-client") {
+                            sh '/opt/homebrew/bin/mvn clean install'
+                        }
+                    }
+                }
+                stage('Build star-wars-data') {
+                    steps {
+                        dir("${SERVICE_LOCATION}/star-wars-data") {
+                            sh '/opt/homebrew/bin/mvn clean install'
+                        }
+                    }
+                }
+            }
+        }
+        stage('Build Spring Boot App') {
+            steps {
+                dir("${SERVICE_LOCATION}/starwars") {
+                    sh '/opt/homebrew/bin/mvn clean package'
+                }
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                dir("${SERVICE_LOCATION}/starwars") {
+                    script {
+                        docker.build("${DOCKER_REGISTRY}/${SPRING_BOOT_APP}:latest")
+                    }
+                }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry("http://${DOCKER_REGISTRY}") {
+                        docker.image("${DOCKER_REGISTRY}/${SPRING_BOOT_APP}:latest").push()
+                    }
+                }
+            }
+        }
+        stage('Deploy Spring Boot App') {
+            steps {
+                sh """
+                docker run -d --name ${SPRING_BOOT_APP} \\
+                -v  ${SERVICE_LOCATION}${CONFIG_LOCATION}:${IMAGE_CONFIG_LOCATION} -p 8080:8080 \\
+                ${DOCKER_REGISTRY}/${SPRING_BOOT_APP}:latest
+                """
+            }
+        }
+    }
+}

@@ -1,0 +1,8 @@
+server:
+    port: 8080
+source:
+    api-url: https://swapi.dev/api
+    base-url: https://swapi.dev
+spring:
+    application:
+        name: StarWarsApplication

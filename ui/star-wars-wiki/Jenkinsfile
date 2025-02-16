@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_REGISTRY = 'localhost:6000'
+        UI_APP = 'star-wars-wiki'
+        SRC_DIR_PATH = "/Users/ramkbharathi/publicis-sapient/ui/star-wars-wiki"
+        PATH = "/opt/homebrew/bin:/opt/homebrew/sbin:/Library/Frameworks/Python.framework/Versions/3.11/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/usr/local/share/dotnet:~/.dotnet/tools:/usr/local/bin/docker:$PATH"
+    }
+
+    stages {
+        stage('Build Docker Image') {
+            steps {
+                dir ("${SRC_DIR_PATH}") {
+                    script {
+                        docker.build("${DOCKER_REGISTRY}/${UI_APP}:latest")
+                    }
+                }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry("http://${DOCKER_REGISTRY}") {
+                        docker.image("${DOCKER_REGISTRY}/${UI_APP}:latest").push()
+                    }
+                }
+            }
+        }
+        stage('Deploy Spring Boot App') {
+            steps {
+                sh """
+                docker run -d --name ${UI_APP} \\
+                -p 80:80 \\
+                ${DOCKER_REGISTRY}/${UI_APP}:latest
+                """
+            }
+        }
+    }
+}

@@ -1,0 +1,242 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > SpeciesService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.example.assignment.starwars.services.strategy.components</a>
+</div>
+
+<h1>Coverage Summary for Class: SpeciesService (org.example.assignment.starwars.services.strategy.components)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">SpeciesService</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    60%
+  </span>
+  <span class="absValue">
+    (6/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94.7%
+  </span>
+  <span class="absValue">
+    (36/38)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">SpeciesService$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (6/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    60%
+  </span>
+  <span class="absValue">
+    (6/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94.9%
+  </span>
+  <span class="absValue">
+    (37/39)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package org.example.assignment.starwars.services.strategy.components;
+&nbsp;
+&nbsp;import lombok.extern.slf4j.Slf4j;
+&nbsp;import org.example.assignment.data.models.Species;
+&nbsp;import org.example.assignment.data.responses.DataResponseWrapper;
+&nbsp;import org.example.assignment.rest.CustomRestClient;
+&nbsp;import org.example.assignment.starwars.dtos.responses.ResponseWrapper;
+&nbsp;import org.example.assignment.starwars.dtos.responses.SpeciesResponse;
+&nbsp;import org.example.assignment.starwars.exceptions.ResourceNotFoundException;
+&nbsp;import org.example.assignment.starwars.services.external.DataSourceService;
+&nbsp;import org.example.assignment.starwars.services.strategy.DataServiceStrategy;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.beans.factory.annotation.Qualifier;
+&nbsp;import org.springframework.core.ParameterizedTypeReference;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;import org.springframework.util.CollectionUtils;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Objects;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;@Service(&quot;species&quot;)
+<b class="fc">&nbsp;@Slf4j</b>
+<b class="fc">&nbsp;public class SpeciesService implements DataServiceStrategy&lt;SpeciesResponse&gt; {</b>
+&nbsp;    @Autowired
+&nbsp;    private DataSourceService dataSourceService;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    @Qualifier(&quot;speciesRestClient&quot;)
+&nbsp;    private CustomRestClient restClient;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public ResponseWrapper&lt;List&lt;SpeciesResponse&gt;&gt; search(String searchValue, Optional&lt;String&gt; pageUrl) {
+&nbsp;        try {
+<b class="fc">&nbsp;            ResponseWrapper&lt;List&lt;SpeciesResponse&gt;&gt; speciesResponseWrapper = new ResponseWrapper&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;            DataResponseWrapper&lt;List&lt;Species&gt;&gt; speciesDataResponseWrapper = dataSourceService</b>
+<b class="fc">&nbsp;                    .getData(restClient, &quot;/?search=&quot; + searchValue,</b>
+<b class="fc">&nbsp;                            new ParameterizedTypeReference&lt;&gt;() {</b>
+&nbsp;                            });
+&nbsp;
+<b class="pc">&nbsp;            if (!Objects.isNull(speciesDataResponseWrapper)) {</b>
+<b class="fc">&nbsp;                if (CollectionUtils.isEmpty(speciesDataResponseWrapper.getResults())) {</b>
+<b class="fc">&nbsp;                    throw new ResourceNotFoundException(&quot;Species not found with search value: &quot; + searchValue);</b>
+&nbsp;                }
+<b class="fc">&nbsp;                List&lt;Species&gt; speciesList = speciesDataResponseWrapper.getResults();</b>
+&nbsp;
+<b class="fc">&nbsp;                List&lt;SpeciesResponse&gt; speciesResponses = transferSpeciesData(speciesList);</b>
+&nbsp;
+<b class="fc">&nbsp;                speciesResponseWrapper.setResult(speciesResponses);</b>
+&nbsp;
+<b class="pc">&nbsp;                if (Objects.nonNull(speciesDataResponseWrapper.getNext())) {</b>
+<b class="nc">&nbsp;                    speciesResponseWrapper.setNext(speciesDataResponseWrapper.getNext());</b>
+&nbsp;                }
+&nbsp;
+<b class="pc">&nbsp;                if (Objects.nonNull(speciesDataResponseWrapper.getPrevious())) {</b>
+<b class="nc">&nbsp;                    speciesResponseWrapper.setPrevious(speciesDataResponseWrapper.getPrevious());</b>
+&nbsp;                }
+&nbsp;
+<b class="pc">&nbsp;                if (speciesDataResponseWrapper.getCount() &gt; 0) {</b>
+<b class="fc">&nbsp;                    speciesResponseWrapper.setCount(speciesDataResponseWrapper.getCount());</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            return speciesResponseWrapper;</b>
+&nbsp;        } catch (Exception e) {
+<b class="fc">&nbsp;            log.error(&quot;Error occurred while fetching species by search value: {}&quot;, e.getMessage());</b>
+&nbsp;            throw e;
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private List&lt;SpeciesResponse&gt; transferSpeciesData(List&lt;Species&gt; speciesList) {
+<b class="fc">&nbsp;        return speciesList.stream().map(species -&gt; {</b>
+<b class="fc">&nbsp;            SpeciesResponse speciesResponse = new SpeciesResponse();</b>
+<b class="fc">&nbsp;            speciesResponse.setName(species.getName());</b>
+<b class="fc">&nbsp;            speciesResponse.setClassification(species.getClassification());</b>
+<b class="fc">&nbsp;            speciesResponse.setDesignation(species.getDesignation());</b>
+<b class="fc">&nbsp;            speciesResponse.setAverageHeight(species.getAverageHeight());</b>
+<b class="fc">&nbsp;            speciesResponse.setSkinColors(species.getSkinColors());</b>
+<b class="fc">&nbsp;            speciesResponse.setHairColors(species.getHairColors());</b>
+<b class="fc">&nbsp;            speciesResponse.setEyeColors(species.getEyeColors());</b>
+<b class="fc">&nbsp;            speciesResponse.setAverageLifespan(species.getAverageLifespan());</b>
+<b class="fc">&nbsp;            speciesResponse.setHomeworld(species.getHomeworld());</b>
+<b class="fc">&nbsp;            speciesResponse.setLanguage(species.getLanguage());</b>
+<b class="fc">&nbsp;            speciesResponse.setPeople(species.getPeople());</b>
+<b class="fc">&nbsp;            speciesResponse.setFilms(species.getFilms());</b>
+<b class="fc">&nbsp;            speciesResponse.setCreated(species.getCreated());</b>
+<b class="fc">&nbsp;            speciesResponse.setEdited(species.getEdited());</b>
+<b class="fc">&nbsp;            speciesResponse.setUrl(species.getUrl());</b>
+<b class="fc">&nbsp;            return speciesResponse;</b>
+<b class="fc">&nbsp;        }).toList();</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-02-02 19:08</div>
+</div>
+</body>
+</html>

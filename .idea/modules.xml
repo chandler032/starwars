@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/services/map-cache/map-cache.iml" filepath="$PROJECT_DIR$/services/map-cache/map-cache.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/publicis-sapient.iml" filepath="$PROJECT_DIR$/.idea/publicis-sapient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/services/rest-client/rest-client.iml" filepath="$PROJECT_DIR$/services/rest-client/rest-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/services/star-wars-data/star-wars-data.iml" filepath="$PROJECT_DIR$/services/star-wars-data/star-wars-data.iml" />
+      <module fileurl="file://$PROJECT_DIR$/services/starwars/starwars.iml" filepath="$PROJECT_DIR$/services/starwars/starwars.iml" />
+    </modules>
+  </component>
+</project>
